@@ -23,6 +23,21 @@ class AuthService {
     localStorage.removeItem("auth_token");
     window.location.reload();
   }
+
+  tokenExpired() {
+    const token = this.getToken();
+
+    if (!token) {
+      return true
+    }
+
+    const { exp } = decode(this.getToken());
+    const currentTime = new Date().getTime() / 1000
+
+    return exp < currentTime;
+  }
 }
 
-export default new AuthService();
+const auth = new AuthService()
+
+export default auth;
