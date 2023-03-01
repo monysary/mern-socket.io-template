@@ -32,17 +32,19 @@ const apolloServer = new ApolloServer({
 
 // Socket.io main working code
 io.on('connection', (socket) => {
-  // Console log's the user's socket ID when user visits the client
+  // Console log the user's socket ID when user visits the client
   console.log(`-----Client is connected with ID: ${socket.id}-----`);
 
-  // Console logs whenever a user joins a room
-  socket.on('joinRoom', async (data) => {
-    socket.join(data);
+  // On 'joinRoom' event
+  socket.on('joinRoom', async (chatInfo) => {
+    socket.join(chatInfo.roomId);
+    console.log(`-----${chatInfo.username} joined room: ${chatInfo.roomId}!-----`);
 
-
-
+    // Server sends back some data, in this case it's a message, on the 'serverMessage' event
+    io.to(chatInfo.roomId).emit('serverMessage', `You entered room ${chatInfo.roomId} as ${chatInfo.username}`)
   });
 
+  // Console log when user disconnects from client
   socket.on('disconnect', () => {
     console.log(`-----Client ID ${socket.id} has disconnected!-----`);
   })

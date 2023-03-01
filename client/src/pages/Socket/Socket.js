@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import auth from "../../utils/auth";
 
 // Import socket.io-client dependencies
@@ -9,25 +9,26 @@ function Socket() {
     const [chatInfo, setChatInfo] = useState({
         roomId: '',
         username: '',
+        message: '',
     });
 
     const handleInputChange = ({ target: { name, value } }) => {
         setChatInfo({ ...chatInfo, [name]: value });
     };
 
+    // Function to send chatInfo to server on the 'joinRoom' event
     const handleJoinRoom = (event) => {
         event.preventDefault();
-        console.log(event.target[0].value);
 
-        socket.emit('joinRoom', chatInfo.roomId)
+        socket.emit('joinRoom', chatInfo)
     };
-    
-    const handleUsername = (event) => {
-        event.preventDefault();
-        console.log(event.target[0].value);
 
+    useEffect(() => {
+        socket.on('serverMessage', (data) => {
+            console.log(data)
+        });
 
-    };
+    }, [socket])
 
     if (auth.tokenExpired()) {
         return (
@@ -48,25 +49,24 @@ function Socket() {
                 </ul>
                 <h1>Socket Chat Room</h1>
                 <hr />
-                <h3>Enter a chat room ID:</h3>
                 <form onSubmit={handleJoinRoom}>
+                    <h3>Enter a chat room ID:</h3>
                     <input
                         name='roomId'
                         placeholder='Room Name'
                         value={chatInfo.roomId}
                         onChange={handleInputChange}
                     />
-                    <button >Submit</button>
-                </form>
-                <h3>Enter your name:</h3>
-                <form onSubmit={handleUsername}>
+                    <h3>Enter your name:</h3>
                     <input
                         name='username'
                         placeholder='Name'
                         value={chatInfo.username}
                         onChange={handleInputChange}
                     />
-                    <button>Submit</button>
+                    <div style={{ marginTop: '20px' }}>
+                        <button>Submit</button>
+                    </div>
                 </form>
             </div>
         )
