@@ -32,6 +32,7 @@ function Register() {
   };
   return (
     <div>
+      <a href="/">Home</a>
       <h1>Register Page</h1>
       <form onSubmit={handleFormSubmit}>
         <input

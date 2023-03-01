@@ -31,6 +31,7 @@ function Login() {
   };
   return (
     <div>
+      <a href="/">Home</a>
       <h1>Login Page</h1>
       <form onSubmit={handleFormSubmit}>
         <input
