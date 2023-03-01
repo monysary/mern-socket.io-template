@@ -11,10 +11,29 @@ const db = require("./config");
 const PORT = process.env.PORT || 3001;
 const app = express();
 
+// Socket.io boiler plate code
+const http = require('http');
+const { Server } = require('socket.io');
+const cors = require('cors');
+app.use(cors());
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: 'http://localhost:3000', // Change the cors origin to the link of deployed app when deployed
+    methods: ['GET', 'POST'],
+  }
+})
+
 const apolloServer = new ApolloServer({
   typeDefs,
   resolvers,
   context: authMiddleware,
+});
+
+// Socket.io main working code
+io.on('connection', (socket) => {
+  console.log(`Client is connected with ID: ${socket.id}`);
+
 });
 
 app.use(express.urlencoded({ extended: false }));
@@ -36,7 +55,7 @@ const startApolloServer = async (typeDefs, resolvers) => {
   await apolloServer.start();
   apolloServer.applyMiddleware({ app });
   db.once("open", () => {
-    app.listen(PORT, () => {
+    server.listen(PORT, () => { // Set to server.listen to allow socket.io connection
       console.log(`Server is listening on port ${PORT}`);
       console.log(
         `Use GraphQL at http://localhost:${PORT}${apolloServer.graphqlPath}`

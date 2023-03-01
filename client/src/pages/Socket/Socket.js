@@ -1,6 +1,12 @@
 import auth from "../../utils/auth";
 
+// Import socket.io-client dependencies
+import io from 'socket.io-client';
+const socket = io.connect('http://localhost:3000') // Change connection url to deployed link when deployed
+
 function Socket() {
+    
+
     if (auth.tokenExpired()) {
         return (
             <div>
