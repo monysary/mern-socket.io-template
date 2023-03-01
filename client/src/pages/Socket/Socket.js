@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import auth from "../../utils/auth";
+import { useQuery } from '@apollo/client';
+import { QUERY_ME } from '../../utils/queries';
 
 // Import socket.io-client dependencies
 import io from 'socket.io-client';
@@ -9,8 +11,12 @@ function Socket() {
     const [chatInfo, setChatInfo] = useState({
         roomId: '',
         username: '',
+        serverMessage: '',
         message: '',
     });
+
+    const { loading, data } = useQuery(QUERY_ME);
+    const name = data?.me.name || '';
 
     const handleInputChange = ({ target: { name, value } }) => {
         setChatInfo({ ...chatInfo, [name]: value });
@@ -20,12 +26,16 @@ function Socket() {
     const handleJoinRoom = (event) => {
         event.preventDefault();
 
-        socket.emit('joinRoom', chatInfo)
+        if (chatInfo.roomId === '' || chatInfo.username === '') {
+            alert('Please enter a chat room ID and your name!')
+        } else {
+            socket.emit('joinRoom', chatInfo)
+        }
     };
 
     useEffect(() => {
         socket.on('serverMessage', (data) => {
-            console.log(data)
+            setChatInfo({ ...chatInfo, serverMessage: data })
         });
 
     }, [socket])
@@ -47,9 +57,9 @@ function Socket() {
                     <li><a href="/">Home</a></li>
                     <li><a href="#" onClick={() => auth.logout()}>Logout</a></li>
                 </ul>
-                <h1>Socket Chat Room</h1>
+                <h1>Hello {name}, welcome to the Socket Chat Room!</h1>
                 <hr />
-                <form onSubmit={handleJoinRoom}>
+                <form onSubmit={handleJoinRoom} style={{ marginBottom: '20px' }}>
                     <h3>Enter a chat room ID:</h3>
                     <input
                         name='roomId'
@@ -68,6 +78,8 @@ function Socket() {
                         <button>Submit</button>
                     </div>
                 </form>
+                <h4>{chatInfo.serverMessage}</h4>
+
             </div>
         )
     }
