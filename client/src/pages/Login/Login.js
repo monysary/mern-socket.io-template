@@ -27,6 +27,7 @@ function Login() {
       Auth.login(data.login.token);
     } catch (err) {
       console.error(err);
+      alert(err.message)
     }
   };
   return (
