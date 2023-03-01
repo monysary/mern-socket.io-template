@@ -32,7 +32,20 @@ const apolloServer = new ApolloServer({
 
 // Socket.io main working code
 io.on('connection', (socket) => {
-  console.log(`Client is connected with ID: ${socket.id}`);
+  // Console log's the user's socket ID when user visits the client
+  console.log(`-----Client is connected with ID: ${socket.id}-----`);
+
+  // Console logs whenever a user joins a room
+  socket.on('joinRoom', async (data) => {
+    socket.join(data);
+
+
+
+  });
+
+  socket.on('disconnect', () => {
+    console.log(`-----Client ID ${socket.id} has disconnected!-----`);
+  })
 
 });
 
