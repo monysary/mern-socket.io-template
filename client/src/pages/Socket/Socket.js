@@ -8,17 +8,8 @@ import io from 'socket.io-client';
 const socket = io.connect('http://localhost:3000') // Change connection url to deployed link when deployed
 
 function Socket() {
-    const [chatInfo, setChatInfo] = useState({
-        roomId: '',
-        username: '',
-        serverMessage: '',
-        messageSent: '',
-        messageReceived: '',
-    });
-
     const [roomId, setRoomId] = useState('');
     const [userName, setUserName] = useState('');
-    const [serverMessage, setServerMessage] = useState('');
     const [messageSent, setMessageSent] = useState('');
     const [messageReceived, setMessageReceived] = useState('');
 
@@ -65,11 +56,6 @@ function Socket() {
         }
 
     };
-
-    // On 'serverMessage' event, sets serverMessage to data
-    socket.on('serverMessage', (data, username) => {
-        setServerMessage(data)
-    });
 
     // On 'receiveMessage' event, sets messageReceived to data
     socket.on('receiveMessage', (data) => {
