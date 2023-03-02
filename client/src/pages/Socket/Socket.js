@@ -12,33 +12,69 @@ function Socket() {
         roomId: '',
         username: '',
         serverMessage: '',
-        message: '',
+        messageSent: '',
+        messageReceived: '',
     });
+
+    const [roomId, setRoomId] = useState('');
+    const [userName, setUserName] = useState('');
+    const [serverMessage, setServerMessage] = useState('');
+    const [messageSent, setMessageSent] = useState('');
+    const [messageReceived, setMessageReceived] = useState('');
 
     const { loading, data } = useQuery(QUERY_ME);
     const name = data?.me.name || '';
 
     const handleInputChange = ({ target: { name, value } }) => {
-        setChatInfo({ ...chatInfo, [name]: value });
+        switch (name) {
+            case 'roomId':
+                setRoomId(value)
+                break;
+            case 'userName':
+                setUserName(value)
+                break;
+            case 'messageSent':
+                setMessageSent(value)
+                break;
+            default:
+                break;
+        }
     };
 
     // Function to send chatInfo to server on the 'joinRoom' event
     const handleJoinRoom = (event) => {
         event.preventDefault();
 
-        if (chatInfo.roomId === '' || chatInfo.username === '') {
+        if (roomId === '' || userName === '') {
             alert('Please enter a chat room ID and your name!')
         } else {
-            socket.emit('joinRoom', chatInfo)
+            socket.emit('joinRoom', { roomId, userName })
         }
     };
 
-    useEffect(() => {
-        socket.on('serverMessage', (data) => {
-            setChatInfo({ ...chatInfo, serverMessage: data })
-        });
+    // Function for sending messages set on 'sendMessage' event
+    const sendMessage = (event) => {
+        event.preventDefault();
 
-    }, [socket])
+        if (!messageSent) {
+            return;
+        } else {
+            socket.emit('sendMessage', { roomId, messageSent })
+        }
+
+    };
+
+    // On 'serverMessage' event, sets serverMessage to data
+    socket.on('serverMessage', (data) => {
+        setServerMessage(data)
+    });
+
+    // On 'receiveMessage' event, sets messageReceived to data
+    socket.on('receiveMessage', (data) => {
+        setMessageReceived(data)
+        setMessageSent('')
+
+    })
 
     if (auth.tokenExpired()) {
         return (
@@ -60,26 +96,40 @@ function Socket() {
                 <h1>Hello {name}, welcome to the Socket Chat Room!</h1>
                 <hr />
                 <form onSubmit={handleJoinRoom} style={{ marginBottom: '20px' }}>
-                    <h3>Enter a chat room ID:</h3>
+                    <h4>Enter a chat room ID:</h4>
                     <input
                         name='roomId'
                         placeholder='Room Name'
-                        value={chatInfo.roomId}
+                        value={roomId}
                         onChange={handleInputChange}
                     />
-                    <h3>Enter your name:</h3>
+                    <h4>Enter your name:</h4>
                     <input
-                        name='username'
+                        name='userName'
                         placeholder='Name'
-                        value={chatInfo.username}
+                        value={userName}
                         onChange={handleInputChange}
                     />
                     <div style={{ marginTop: '20px' }}>
                         <button>Submit</button>
                     </div>
                 </form>
-                <h4>{chatInfo.serverMessage}</h4>
-
+                <h3>{serverMessage}</h3>
+                {serverMessage !== '' &&
+                    <>
+                        <form onSubmit={sendMessage}>
+                            <input
+                                name='messageSent'
+                                placeholder='Your Message'
+                                value={messageSent}
+                                onChange={handleInputChange}
+                            />
+                            <button>Send</button>
+                        </form>
+                        <h4>Message:</h4>
+                        <div>{messageReceived}</div>
+                    </>
+                }
             </div>
         )
     }

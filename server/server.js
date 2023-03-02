@@ -36,12 +36,19 @@ io.on('connection', (socket) => {
   console.log(`-----Client is connected with ID: ${socket.id}-----`);
 
   // On 'joinRoom' event
-  socket.on('joinRoom', async (chatInfo) => {
-    socket.join(chatInfo.roomId);
-    console.log(`-----${chatInfo.username} joined room: ${chatInfo.roomId}!-----`);
+  socket.on('joinRoom', (data) => {
+    socket.join(data.roomId);
+    console.log(`-----${data.userName} joined room: ${data.roomId}!-----`);
 
     // Server sends back some data, in this case it's a message, on the 'serverMessage' event
-    io.to(chatInfo.roomId).emit('serverMessage', `You entered room ${chatInfo.roomId} as ${chatInfo.username}`)
+    io.to(data.roomId).emit('serverMessage', `You entered room ${data.roomId} as ${data.userName}`)
+  });
+
+  // On 'sendMessage' event
+  socket.on('sendMessage', (data) => {
+    // Server receives the data and sends it back to the client
+    io.to(data.roomId).emit('receiveMessage', data.messageSent)
+
   });
 
   // Console log when user disconnects from client
