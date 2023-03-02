@@ -58,6 +58,8 @@ function Socket() {
 
         if (!messageSent) {
             return;
+        } else if (roomId === '') {
+            alert('You need to enter a room!')
         } else {
             socket.emit('sendMessage', { roomId, messageSent })
         }
@@ -65,7 +67,7 @@ function Socket() {
     };
 
     // On 'serverMessage' event, sets serverMessage to data
-    socket.on('serverMessage', (data) => {
+    socket.on('serverMessage', (data, username) => {
         setServerMessage(data)
     });
 
@@ -114,22 +116,18 @@ function Socket() {
                         <button>Submit</button>
                     </div>
                 </form>
-                <h3>{serverMessage}</h3>
-                {serverMessage !== '' &&
-                    <>
-                        <form onSubmit={sendMessage}>
-                            <input
-                                name='messageSent'
-                                placeholder='Your Message'
-                                value={messageSent}
-                                onChange={handleInputChange}
-                            />
-                            <button>Send</button>
-                        </form>
-                        <h4>Message:</h4>
-                        <div>{messageReceived}</div>
-                    </>
-                }
+                <h3>Send a message:</h3>
+                <form onSubmit={sendMessage}>
+                    <input
+                        name='messageSent'
+                        placeholder='Your Message'
+                        value={messageSent}
+                        onChange={handleInputChange}
+                    />
+                    <button>Send</button>
+                </form>
+                <h4>Message:</h4>
+                <div>{messageReceived}</div>
             </div>
         )
     }

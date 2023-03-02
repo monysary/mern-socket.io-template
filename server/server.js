@@ -40,8 +40,6 @@ io.on('connection', (socket) => {
     socket.join(data.roomId);
     console.log(`-----${data.userName} joined room: ${data.roomId}!-----`);
 
-    // Server sends back some data, in this case it's a message, on the 'serverMessage' event
-    io.to(data.roomId).emit('serverMessage', `You entered room ${data.roomId} as ${data.userName}`)
   });
 
   // On 'sendMessage' event
